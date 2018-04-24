@@ -1,1 +1,1 @@
-from .tree import Criterion
+from .tree import Criterion, build_tree

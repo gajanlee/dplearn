@@ -1,6 +1,7 @@
 import unittest
 
-from dplearn.tree import Criterion
+from dplearn.tree import *
+from dplearn.datasets import insurement_v1
 dataSet = [['长', '粗'],
             ['短', '粗'],
             ['短', '粗'],
@@ -20,8 +21,16 @@ class Test_Criterion(unittest.TestCase):
         -----
         PASS 0.9544340029249649
         """
-        Criterion.entropy(dataSet, labels)
+        print(Criterion.entropy(*insurement_v1()))
 
+class Test_Build_Tree(unittest.TestCase):
+    def test_build_tree(self):
+        """Tree.build_tree
+
+        -----
+        TODO
+        """
+        build_tree(*insurement_v1())
 
 if __name__ == "__main__":
     unittest.main()
