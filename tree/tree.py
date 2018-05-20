@@ -17,6 +17,12 @@ class Tree:
         """
         self.res_name = res_name
         return self
+
+    def depth(self):
+        pass
+
+    def subnode_count(self):
+        pass
     
     def __str__(self):
         for c, n in self.children.items():
@@ -52,8 +58,9 @@ def build_tree(dataX, labels, attns=[]):
         _split[dx[ms]][1].append(labels[i])
     
     print(_split)
+    node.set_attr(attns[ms])
     for sp, (_X, _y) in _split.items():
-        node.children[sp] = build_tree(_X, _y)
+        node.children[sp] = build_tree(_X, _y, attns[:ms] + attns[ms+1:])
     print(node.children)    
     return node
     
@@ -140,4 +147,9 @@ class DecisionTree:
 
         if sum(y) == len(y) or sum(y) == 0:
             node.result = y[0]; return node
-        
+
+if __name__ == "__main__":
+    from dplearn.datasets import insurement_v1
+
+    tree = build_tree(*insurement_v1(), ["年龄", "有工作", "有自己的房子", "信贷情况"])
+    print(tree)
