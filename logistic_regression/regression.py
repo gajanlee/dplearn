@@ -9,19 +9,40 @@ def convert_matrix(func):
 def sigmoid(output):
     return 1 / (1 + np.exp(-output))
 
+# 梯度上升方法
 @convert_matrix
 def gradient_ascent(data, labels):
     batch_size, feature_size = data.shape
     print(data.shape, labels.shape)
     assert labels.shape == (batch_size, 1)
 
-    alpha, epochs = 0.001, 500
+    alpha, epochs = 0.001, 50
     data = np.column_stack((np.ones((batch_size, 1)), data))    # 为Bias最后一列添加1,X = [X|1]
     weights = np.ones((feature_size + 1, 1))    # 可以尝试随机初始化，添加一列作为bias
     for _ in range(epochs):
         output = sigmoid(data * weights)
         error = (labels - output)
         weights = weights + alpha * data.transpose() * error
+    return weights
+
+# SGD，随机梯度下降
+@convert_matrix
+def stochastic_gradient_descent(data, labels):
+    batch_size, feature_size = data.shape
+    assert labels.shape == (batch_size, 1)
+
+    alpha, epochs = 0.001, 50
+    data = np.column_stack((np.ones((batch_size, 1)), data))    # 为Bias最后一列添加1,X = [X|1]
+    weights = np.ones((feature_size + 1, 1))    # 可以尝试随机初始化，添加一列作为bias
+    for epoch in range(epochs):
+        from random import shuffle
+        indexes = [i for i in range(batch_size)]
+        shuffle(indexes)
+        for i in indexes:
+            alpha = 4 / (1+epoch+i) + 0.001
+            h = sigmoid(sum(data[i]*weights))
+            error = labels[i][0] - h
+            weights = weights + alpha*float(error)*data[i].transpose()
     return weights
 
 def get_data():
@@ -62,8 +83,11 @@ def show(weights):
 
 
 if __name__ == "__main__":
+    data, labels = get_data()
+
+
     # getA() matrix => array
     data, labels = get_data()
+    #weights = stochastic_gradient_descent(data, labels)
     weights = gradient_ascent(data, labels)
-    print(gradient_ascent(data, labels))
     show(weights.getA())
