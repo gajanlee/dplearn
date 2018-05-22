@@ -18,16 +18,41 @@ class Tree:
         self.res_name = res_name
         return self
 
-    def depth(self):
-        pass
-
     def subnode_count(self):
         pass
-    
+
+    def display(self):
+        width = 1000
+        import matplotlib.pyplot as plt
+        depth = self.depth()
+        x, y = 500, 500     # 当前节点的坐标
+        for i in range:
+            x +
+        plt.plot([1, 2, 3, 4, 5], [4, 3, 4, 3, 4])  # 在画布上画图
+        plt.text(3, 3, "asdfasdf")
+        plt.show()
+
+
+    def zuobiao(self, parent, height, width):
+        # 返回应该划线的坐标和标注点。
+        if hasattr(self, "res_name"):
+            return (parent[0], parent[0]+width), (parent[1], parent[1]-height), self.res_name
+        else:
+            res = []
+            for k, c in self.children.items():
+                res.extend()
+            return res
     def __str__(self):
+        if hasattr(self, "res_name"):
+            pass
         for c, n in self.children.items():
             print()
-    
+
+    def depth(self, d = 0):
+        if hasattr(self, "res_name"):
+            return d + 1
+        else:
+            return max([n.depth(d+1) for n in self.children.values()])
 
 def build_tree(dataX, labels, attns=[]):
     node = Tree()
@@ -54,14 +79,14 @@ def build_tree(dataX, labels, attns=[]):
     
     _split = {c: ([], []) for c in counts[ms]}
     for i, dx in enumerate(dataX):
-        _split[dx[ms]][0].append(dx[:ms] + dx[ms+1:])        
-        _split[dx[ms]][1].append(labels[i])
+        _split[dx[ms]][0].append(dx[:ms] + dx[ms+1:])           # 符合切分条件的dataset
+        _split[dx[ms]][1].append(labels[i])                     # 符合切分条件的label
     
     print(_split)
     node.set_attr(attns[ms])
     for sp, (_X, _y) in _split.items():
         node.children[sp] = build_tree(_X, _y, attns[:ms] + attns[ms+1:])
-    print(node.children)    
+    print(node.children)
     return node
     
 
@@ -80,7 +105,8 @@ class Criterion:
     
     @staticmethod
     def entropy(dataset, labels):
-        """information entropy. 
+        """information entropy.
+            计算过程中与dataset的值无关，只与label有关。
         """
         assert len(dataset) == len(labels)
         classes = list(set(labels))
@@ -149,7 +175,10 @@ class DecisionTree:
             node.result = y[0]; return node
 
 if __name__ == "__main__":
+    import sys
     from dplearn.datasets import insurement_v1
 
     tree = build_tree(*insurement_v1(), ["年龄", "有工作", "有自己的房子", "信贷情况"])
-    print(tree)
+    print(tree.depth(0))
+    tree.display()
+    #print(tree)
