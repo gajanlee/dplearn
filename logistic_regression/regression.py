@@ -16,12 +16,13 @@ def gradient_ascent(data, labels):
     print(data.shape, labels.shape)
     assert labels.shape == (batch_size, 1)
 
-    alpha, epochs = 0.001, 50
+    alpha, epochs = 0.001, 5
     data = np.column_stack((np.ones((batch_size, 1)), data))    # 为Bias最后一列添加1,X = [X|1]
     weights = np.ones((feature_size + 1, 1))    # 可以尝试随机初始化，添加一列作为bias
     for _ in range(epochs):
         output = sigmoid(data * weights)
         error = (labels - output)
+        print(alpha * data.transpose() * error)
         weights = weights + alpha * data.transpose() * error
     return weights
 
@@ -31,19 +32,49 @@ def stochastic_gradient_descent(data, labels):
     batch_size, feature_size = data.shape
     assert labels.shape == (batch_size, 1)
 
-    alpha, epochs = 0.001, 50
+    alpha, epochs = 0.001, 500
     data = np.column_stack((np.ones((batch_size, 1)), data))    # 为Bias最后一列添加1,X = [X|1]
     weights = np.ones((feature_size + 1, 1))    # 可以尝试随机初始化，添加一列作为bias
     for epoch in range(epochs):
         from random import shuffle
         indexes = [i for i in range(batch_size)]
         shuffle(indexes)
-        for i in indexes:
+        mini_batches = 3
+        # 随机选择部分节点。
+        for i in indexes[:mini_batches]:
             alpha = 4 / (1+epoch+i) + 0.001
             h = sigmoid(sum(data[i]*weights))
             error = labels[i][0] - h
             weights = weights + alpha*float(error)*data[i].transpose()
     return weights
+
+@convert_matrix
+def RMS_prop(data, labels):
+    batch_size, feature_size = data.shape
+    assert labels.shape == (batch_size, 1)
+    
+    data = np.column_stack((np.ones((batch_size, 1)), data))    # 为Bias最后一列添加1,X = [X|1]
+    weights = np.ones((feature_size + 1, 1))    # 可以尝试随机初始化，添加一列作为bias
+
+    alpha, decay, epochs = 0.001, 0.9, 50
+    r = 0
+    for _ in range(epochs):
+        mini_batches = 30
+        from random import shuffle
+        import math
+        indexes = [i for i in range(batch_size)]
+        shuffle(indexes)
+        
+        _data = np.mat([data[i].getA()[0] for i in indexes[:mini_batches]])
+        _labels = np.mat([labels[i].getA()[0] for i in indexes[:mini_batches]])
+        output = sigmoid(_data * weights)
+        error = (_labels - output)
+
+        r = float(decay * r + (1 - decay) * (error.transpose() * error))
+        weights = weights + alpha / math.sqrt(float(r)) * _data.transpose()* error
+
+    return weights
+  
 
 def get_data():
     data, labels = [], []
@@ -88,6 +119,7 @@ if __name__ == "__main__":
 
     # getA() matrix => array
     data, labels = get_data()
-    #weights = stochastic_gradient_descent(data, labels)
-    weights = gradient_ascent(data, labels)
+    # weights = stochastic_gradient_descent(data, labels)
+    #weights = gradient_ascent(data, labels)
+    weights = RMS_prop(data, labels)
     show(weights.getA())
